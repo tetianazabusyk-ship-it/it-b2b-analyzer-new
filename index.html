@@ -16,12 +16,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 .logo-sq{width:30px;height:30px;background:var(--g);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px}
 .logo-txt{font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--tx2)}
 .ver{font-family:var(--mono);font-size:10px;color:var(--tx3);border:1px solid var(--bd2);padding:4px 10px;border-radius:100px}
-.key-bar{background:rgba(77,159,255,.06);border:1px solid rgba(77,159,255,.2);border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.key-bar input{flex:1;min-width:200px;background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:10px 14px;color:var(--tx);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .2s}
-.key-bar input:focus{border-color:var(--b)}
-.key-bar button{padding:10px 18px;background:var(--b);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:var(--sans);cursor:pointer;white-space:nowrap}
-.key-bar button:hover{opacity:.85}
-.key-status{font-family:var(--mono);font-size:11px;width:100%;margin-top:2px}
 .card{background:var(--s1);border:1px solid var(--bd2);border-radius:18px;padding:28px 28px 24px;position:relative;overflow:hidden;margin-bottom:20px}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--g),var(--b))}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
@@ -71,7 +65,7 @@ option{color:var(--tx);background:var(--s2)}
 .sec-h:hover{background:rgba(255,255,255,.02)}
 .sec-ico{font-size:16px}
 .sec-ttl{flex:1;font-size:13px;font-weight:700;letter-spacing:.2px}
-.sec-arr{font-size:9px;color:var(--tx3);transition:transform .2s}
+.sec-arr{font-size:9px;color:var(--tx3);transition:transform .2s;transform:rotate(0deg)}
 .sec-arr.open{transform:rotate(90deg)}
 .sec-body{display:none;padding:0 20px 20px}
 .sec-body.open{display:block}
@@ -118,13 +112,6 @@ option{color:var(--tx);background:var(--s2)}
       <div class="logo-txt">IT B2B Analyzer</div>
     </div>
     <div class="ver">Global · 2025</div>
-  </div>
-
-  <!-- API KEY BAR -->
-  <div class="key-bar" id="key-bar">
-    <input type="password" id="key-inp" placeholder="Paste your Anthropic API key: sk-ant-api03-..." autocomplete="off"/>
-    <button onclick="saveKey()">Save Key</button>
-    <div class="key-status" id="key-status" style="color:var(--tx3)">🔑 Enter your key once — it saves in your browser</div>
   </div>
 
   <div class="card">
@@ -193,8 +180,8 @@ option{color:var(--tx);background:var(--s2)}
             <option value="__custom__">✏️ Type custom role…</option>
           </optgroup>
         </select>
-        <input type="text" id="inp-r-custom" placeholder="e.g. SAP Consultant…"
-          style="display:none;margin-top:8px;background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:11px 14px;color:var(--tx);font-family:var(--sans);font-size:14px;outline:none;width:100%"
+        <input type="text" id="inp-r-custom" placeholder="e.g. SAP Consultant, Salesforce Admin…"
+          style="display:none;margin-top:8px;background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:11px 14px;color:var(--tx);font-family:var(--sans);font-size:14px;outline:none;width:100%;transition:border-color .2s"
           onfocus="this.style.borderColor='var(--g)'" onblur="this.style.borderColor='var(--bd)'"/>
       </div>
     </div>
@@ -268,38 +255,14 @@ option{color:var(--tx);background:var(--s2)}
     <div class="spinner"></div>
     <div class="load-txt">Analyzing <span class="load-country" id="lc"></span>…</div>
   </div>
+
   <div id="result"></div>
+
 </div>
 
 <script>
-const PROXY = 'https://anthropic-proxy.tetiana-zabusyk.workers.dev';
-
-// KEY MANAGEMENT
-function saveKey(){
-  const v = document.getElementById('key-inp').value.trim();
-  if(!v || !v.startsWith('sk-')) {
-    document.getElementById('key-status').textContent = '❌ Invalid key — must start with sk-ant-api03-...';
-    document.getElementById('key-status').style.color = 'var(--r)';
-    return;
-  }
-  localStorage.setItem('b2b_key', v);
-  document.getElementById('key-inp').value = '';
-  document.getElementById('key-status').textContent = '✅ Key saved! You can now analyze any country.';
-  document.getElementById('key-status').style.color = 'var(--g)';
-}
-
-function getKey(){ return localStorage.getItem('b2b_key') || ''; }
-
-function initKey(){
-  if(getKey()){
-    document.getElementById('key-inp').placeholder = 'Key saved ✅ — paste new key to update';
-    document.getElementById('key-status').textContent = '✅ Key saved — ready to analyze!';
-    document.getElementById('key-status').style.color = 'var(--g)';
-  }
-}
-
-// COUNTRIES
 const CL=["Afghanistan","Albania","Algeria","Argentina","Armenia","Australia","Austria","Azerbaijan","Bahrain","Bangladesh","Belarus","Belgium","Bolivia","Bosnia","Brazil","Bulgaria","Cambodia","Canada","Chile","China","Colombia","Costa Rica","Croatia","Cyprus","Czech Republic","Denmark","Ecuador","Egypt","Estonia","Finland","France","Georgia","Germany","Ghana","Greece","Hungary","Hong Kong","Iceland","India","Indonesia","Ireland","Israel","Italy","Japan","Jordan","Kazakhstan","Kenya","Kuwait","Latvia","Lithuania","Luxembourg","Malaysia","Malta","Mexico","Moldova","Mongolia","Montenegro","Morocco","Nepal","Netherlands","New Zealand","Nigeria","Norway","Oman","Pakistan","Panama","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Saudi Arabia","Serbia","Singapore","Slovakia","Slovenia","South Africa","South Korea","Spain","Sri Lanka","Sweden","Switzerland","Taiwan","Thailand","Tunisia","Turkey","UAE","Ukraine","United Kingdom","United States","Uruguay","Uzbekistan","Vietnam","Zimbabwe"];
+
 const inp=document.getElementById('inp-c'),sugg=document.getElementById('csugg');
 inp.addEventListener('input',()=>{
   const v=inp.value.trim().toLowerCase();
@@ -312,7 +275,6 @@ inp.addEventListener('input',()=>{
 document.addEventListener('click',e=>{if(!e.target.closest('.cw'))sugg.classList.remove('show')});
 function setC(c){inp.value=c;sugg.classList.remove('show')}
 
-// TAGS
 document.querySelectorAll('.tag').forEach(t=>t.addEventListener('click',()=>t.classList.toggle('on')));
 const getTags=()=>[...document.querySelectorAll('.tag.on')].map(t=>t.dataset.t);
 
@@ -339,17 +301,9 @@ function addCustomSkill(){
   si.value='';
 }
 
-// MAIN
 async function run(){
   const country=inp.value.trim(),role=getRole(),skills=getTags();
   if(!country){inp.focus();inp.style.borderColor='var(--r)';setTimeout(()=>inp.style.borderColor='',1500);return}
-  const apiKey=getKey();
-  if(!apiKey){
-    document.getElementById('key-inp').focus();
-    document.getElementById('key-status').textContent='⚠️ Please enter your API key first!';
-    document.getElementById('key-status').style.color='var(--r)';
-    return;
-  }
   document.getElementById('go-btn').disabled=true;
   document.getElementById('loading').classList.add('show');
   document.getElementById('lc').textContent=country;
@@ -357,18 +311,9 @@ async function run(){
   document.getElementById('result').classList.remove('show');
 
   const skillStr=skills.length?skills.join(', '):'general IT';
-  const prompt=`You are a global IT B2B tax and legal expert with access to official government sources. Analyze B2B/freelance IT contracting in ${country} for: Role: ${role} | Skills: ${skillStr}
+  const prompt=`You are a global IT tax and employment law expert. Provide a CONCISE, STRUCTURED, DATA-DENSE analysis for B2B IT contracting in ${country}.
 
-CRITICAL RULES — VIOLATIONS WILL MAKE THE TOOL USELESS:
-1. ONLY provide B2B/freelance/self-employment data — NOT employment/salary data
-2. For taxes: ONLY taxes paid by a self-employed person/sole trader/individual entrepreneur — NOT employer taxes
-3. If B2B is restricted for foreigners, say so explicitly in verdict and who_can fields
-4. Salary ranges = typical B2B CONTRACT RATES (what clients pay), not employment salaries
-5. If you are not confident about a specific number, use a range and note uncertainty
-6. Singapore: B2B as foreigner requires EntrePass or EP — verdict must be CONDITIONAL
-7. Poland: B2B = JDG (jednoosobowa działalność gospodarcza) — taxes are ryczałt/liniowy/skala, NOT employment PIT
-8. UAE: 0% income tax for individuals, but note VAT registration threshold
-9. Always distinguish between: local market rates vs international client rates
+Role: ${role} | Skills: ${skillStr}
 
 RESPOND ONLY IN THE FOLLOWING JSON FORMAT (no markdown, no extra text):
 
@@ -395,16 +340,16 @@ RESPOND ONLY IN THE FOLLOWING JSON FORMAT (no markdown, no extra text):
     "notes": "important limitations or advantages"
   },
   "taxes": [
-    {"name":"Income tax","rate":"5%","base":"on gross revenue","amount_example":"$300 on $6,000/mo","notes":""}
+    {"name":"Income tax","rate":"5%","base":"on gross revenue","amount_example":"$300 on $6,000/mo","notes":"FOP Group 3"}
   ],
   "tax_notes": "2-3 sentences about special regimes, caveats, recent changes 2024-2025",
   "tax_formula": {
     "method": "percentage_of_gross",
-    "description": "brief description",
+    "description": "brief description of how net is calculated",
     "steps": [
       {"label":"Income tax","type":"percent_of_gross","value":5},
       {"label":"Military levy","type":"percent_of_gross","value":1.5},
-      {"label":"Pension","type":"fixed_usd","value":42}
+      {"label":"Pension (ESV)","type":"fixed_usd","value":42}
     ],
     "vat_note": "VAT note if relevant"
   },
@@ -413,37 +358,43 @@ RESPOND ONLY IN THE FOLLOWING JSON FORMAT (no markdown, no extra text):
   ],
   "leave_and_holidays": {
     "annual_leave_days": 20,
-    "annual_leave_note": "statutory minimum",
+    "annual_leave_note": "20 working days statutory; IT companies typically 24-28",
     "public_holidays_count": 10,
     "public_holidays_list": [{"name":"New Year Day","date":"January 1"}],
     "b2b_note": "B2B contractors have no statutory leave — negotiate in contract.",
-    "sick_leave_note": "No sick pay for B2B unless agreed contractually"
+    "sick_leave_note": "B2B contractors not entitled to sick pay unless contractually agreed"
   },
-  "risks": ["Risk 1","Risk 2","Risk 3"],
+  "risks": ["Risk 1: sham employment — describe","Risk 2: ...","Risk 3: ..."],
   "confidence": "HIGH" | "MEDIUM" | "LOW",
-  "confidence_note": "why — be specific about what you are uncertain about",
+  "confidence_note": "why",
   "data_date": "as of [month year]",
-  "sources": [
-    "https://official-tax-authority.gov/self-employment",
-    "https://government-portal.gov/freelance-registration"
-  ]
+  "sources": ["https://gov-source-1.example","https://gov-source-2.example"]
 }
 
-IMPORTANT VERIFICATION RULES:
-- All salary figures = B2B contract rates in USD gross/month (what the client pays you)
-- Tax steps = ONLY self-employed person taxes, never employer contributions
-- For each country double-check: is B2B legal? who can do it (residents only? foreigners?)
-- If country has special IT tax regimes (Ukraine FOP, Georgia Small Business, Estonia e-Residency) — use those
-- Confidence=HIGH only if you are certain about the specific B2B regime
-- Confidence=MEDIUM if general framework is clear but some rates may vary
-- Confidence=LOW if you are unsure — better to say LOW than give wrong data
-- Include ALL official public holidays, not just examples
-- sources: add a "sources" array with 2-3 official URLs the user should verify (e.g. tax authority website, government portal)`;
+STEP TYPES for tax_formula.steps:
+- "percent_of_gross": simple % of gross (e.g. Ukraine FOP 5%)
+- "fixed_usd": fixed USD amount per month
+- "capped_percent": % of gross with min_usd and cap_usd limits (social insurance)
+- "percent_of_taxable_minus_social": % on (gross*(1-expense_pct/100) - social_total)
+- "progressive_brackets": progressive tax — add field progressive_brackets:[{up_to:N,rate:R},...,{up_to:null,rate:R}]
+- "progressive_on_taxable": progressive on (gross*(1-expense_pct/100) - social_total)
+
+RULES:
+- All salary figures in USD gross/month
+- All USD caps/thresholds in USD (convert from local currency)
+- Bulgaria/Romania: capped_percent social + percent_of_taxable_minus_social income tax
+- Germany/NL/Austria: capped_percent per social branch + progressive_brackets income tax
+- Spain/Italy/France/Poland: capped_percent social + progressive_brackets income tax
+- UAE/Bahrain/Georgia flat/Ukraine FOP: percent_of_gross components
+- Always set BOTH cap_usd AND min_usd for capped_percent
+- Include ALL official public holidays in public_holidays_list
+- annual_leave_days = statutory minimum in WORKING DAYS
+- If B2B genuinely not possible, verdict=NO and explain`;
 
   try{
-    const resp=await fetch(PROXY,{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
       method:"POST",
-      headers:{"Content-Type":"application/json","x-api-key":apiKey},
+      headers:{"Content-Type":"application/json"},
       body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3500,messages:[{role:"user",content:prompt}]})
     });
     const data=await resp.json();
@@ -469,8 +420,9 @@ function renderResult(country,role,skills,d){
   const salRows=(d.salaries?.rows||[]).map((r,i)=>`<tr class="${i===2?'hi':''}"><td>${r.level}</td><td class="c-g num">$${r.low.toLocaleString()}</td><td class="c-g num">$${r.high.toLocaleString()}</td><td style="color:var(--tx2);font-size:11px">${r.notes||''}</td></tr>`).join('');
   const taxRows=(d.taxes||[]).map(t=>`<tr><td>${t.name}</td><td class="c-y num">${t.rate}</td><td style="font-size:12px;color:var(--tx2)">${t.base}</td><td class="c-r num">${t.amount_example}</td><td style="font-size:11px;color:var(--tx3)">${t.notes||''}</td></tr>`).join('');
   const jbRows=(d.job_boards||[]).map(j=>`<tr><td>${j.name}</td><td style="color:var(--b)">${j.type}</td><td class="num" style="color:var(--tx2)">${j.visitors}</td><td class="c-g num">${j.posting_cost}</td><td style="font-size:11px;color:var(--tx2)">${j.best_for}</td></tr>`).join('');
-  const risks=(d.risks||[]).map(r=>`<li style="margin-bottom:6px">${r}</li>`).join('');
+  const risks=(d.risks||[]).map(r=>`<li>${r}</li>`).join('');
   const skillsChips=skills.length?skills.map(s=>`<span style="padding:3px 10px;border-radius:100px;font-size:11px;background:rgba(57,255,142,.08);border:1px solid rgba(57,255,142,.2);color:var(--g);font-family:var(--mono)">${s}</span>`).join(' '):'';
+
   const html=`
   <div class="verdict ${vc}">
     <div class="v-lbl">// B2B · ${country}</div>
@@ -478,34 +430,99 @@ function renderResult(country,role,skills,d){
     <div class="v-sub">${d.verdict_detail||''}</div>
     ${skillsChips?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px">${skillsChips}</div>`:''}
   </div>
-  <div class="sec"><div class="sec-h" onclick="tog(this)"><span class="sec-ico">💰</span><span class="sec-ttl">Salary Ranges · ${role}</span><span class="sec-arr open">▶</span></div><div class="sec-body open"><table class="tbl"><thead><tr><th>Level</th><th class="num">Low USD/mo</th><th class="num">High USD/mo</th><th>Notes</th></tr></thead><tbody>${salRows}</tbody></table>${d.salaries?.skills_premium?`<div class="blk blk-g" style="margin-top:12px"><div class="blk-t">Skills Premium</div>${d.salaries.skills_premium}</div>`:''} ${d.salaries?.remote_note?`<div class="blk blk-b"><div class="blk-t">Remote Work</div>${d.salaries.remote_note}</div>`:''}</div></div>
-  <div class="sec"><div class="sec-h" onclick="tog(this)"><span class="sec-ico">🏢</span><span class="sec-ttl">B2B Structure · ${d.b2b_structure?.name||''}</span><span class="sec-arr open">▶</span></div><div class="sec-body open"><div class="blk blk-g"><div class="blk-t">Entity</div><strong>${d.b2b_structure?.name||'—'}</strong></div><table class="tbl"><tbody><tr><td>Registration</td><td>${d.b2b_structure?.registration||'—'}</td></tr><tr><td>Who can use</td><td>${d.b2b_structure?.who_can||'—'}</td></tr>${d.b2b_structure?.notes?`<tr><td>Notes</td><td>${d.b2b_structure.notes}</td></tr>`:''}</tbody></table></div></div>
-  <div class="sec"><div class="sec-h" onclick="tog(this)"><span class="sec-ico">📊</span><span class="sec-ttl">Taxes & Contributions</span><span class="sec-arr open">▶</span></div><div class="sec-body open"><table class="tbl"><thead><tr><th>Tax</th><th class="num">Rate</th><th>Base</th><th class="num">Example</th><th>Notes</th></tr></thead><tbody>${taxRows}</tbody></table>${d.tax_notes?`<div class="blk blk-o" style="margin-top:12px"><div class="blk-t">Notes</div>${d.tax_notes}</div>`:''}<div class="calc-card"><div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--tx3);margin-bottom:12px">// Net Income Calculator</div><div class="calc-inp-row"><input class="calc-inp" id="calc-gross" type="number" placeholder="Gross invoice USD…" min="100"/><button class="calc-btn" onclick="calcNet()">Calculate</button></div><div class="calc-result" id="calc-result"></div></div></div></div>
-  ${d.job_boards?.length?`<div class="sec"><div class="sec-h" onclick="tog(this)"><span class="sec-ico">📋</span><span class="sec-ttl">Job Boards · ${country}</span><span class="sec-arr">▶</span></div><div class="sec-body"><table class="tbl"><thead><tr><th>Platform</th><th>Type</th><th class="num">Traffic</th><th class="num">Cost</th><th>Best For</th></tr></thead><tbody>${jbRows}</tbody></table></div></div>`:''}
-  ${d.leave_and_holidays?`<div class="sec"><div class="sec-h" onclick="tog(this)"><span class="sec-ico">🏖️</span><span class="sec-ttl">Leave & Holidays · ${country}</span><span class="sec-arr">▶</span></div><div class="sec-body"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px"><div style="background:var(--s2);border-radius:10px;padding:14px 16px;border:1px solid var(--bd)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px">Annual Leave</div><div style="font-size:28px;font-weight:800;color:var(--g);font-family:var(--mono)">${d.leave_and_holidays.annual_leave_days}</div><div style="font-size:12px;color:var(--tx2);margin-top:4px">working days statutory</div></div><div style="background:var(--s2);border-radius:10px;padding:14px 16px;border:1px solid var(--bd)"><div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px">Public Holidays</div><div style="font-size:28px;font-weight:800;color:var(--b);font-family:var(--mono)">${d.leave_and_holidays.public_holidays_count}</div><div style="font-size:12px;color:var(--tx2);margin-top:4px">days per year</div></div></div>${d.leave_and_holidays.public_holidays_list?.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:6px;margin-bottom:12px">${d.leave_and_holidays.public_holidays_list.map(h=>`<div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;gap:8px"><div style="font-size:12px;color:var(--tx)">${h.name}</div><div style="font-size:11px;color:var(--tx3);font-family:var(--mono)">${h.date}</div></div>`).join('')}</div>`:''}<div class="blk blk-o"><div class="blk-t">B2B Note</div>${d.leave_and_holidays.b2b_note||''}${d.leave_and_holidays.sick_leave_note?`<br><br>${d.leave_and_holidays.sick_leave_note}`:''}</div></div></div>`:''}
-  ${d.risks?.length?`<div class="sec"><div class="sec-h" onclick="tog(this)"><span class="sec-ico">⚠️</span><span class="sec-ttl">Risks & Red Flags</span><span class="sec-arr">▶</span></div><div class="sec-body"><div class="blk blk-r"><ul style="padding-left:16px;list-style:disc">${risks}</ul></div></div></div>`:''}
+
+  <div class="sec">
+    <div class="sec-h" onclick="tog(this)"><span class="sec-ico">💰</span><span class="sec-ttl">Salary Ranges · Gross USD/month · ${role}</span><span class="sec-arr open">▶</span></div>
+    <div class="sec-body open">
+      <table class="tbl"><thead><tr><th>Level</th><th class="num">Low</th><th class="num">High</th><th>Notes</th></tr></thead><tbody>${salRows}</tbody></table>
+      ${d.salaries?.skills_premium?`<div class="blk blk-g" style="margin-top:12px"><div class="blk-t">Skills Premium</div>${d.salaries.skills_premium}</div>`:''}
+      ${d.salaries?.remote_note?`<div class="blk blk-b"><div class="blk-t">Remote Work</div>${d.salaries.remote_note}</div>`:''}
+      ${d.salaries?.currency_note?`<div style="font-size:11px;color:var(--tx3);font-family:var(--mono);margin-top:8px">ℹ️ ${d.salaries.currency_note}</div>`:''}
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h" onclick="tog(this)"><span class="sec-ico">🏢</span><span class="sec-ttl">B2B Structure · ${d.b2b_structure?.name||'Freelance Entity'}</span><span class="sec-arr open">▶</span></div>
+    <div class="sec-body open">
+      <div class="blk blk-g"><div class="blk-t">Entity</div><strong>${d.b2b_structure?.name||'—'}</strong></div>
+      <table class="tbl"><tbody>
+        <tr><td>Registration</td><td>${d.b2b_structure?.registration||'—'}</td></tr>
+        <tr><td>Who can use</td><td>${d.b2b_structure?.who_can||'—'}</td></tr>
+        ${d.b2b_structure?.notes?`<tr><td>Notes</td><td>${d.b2b_structure.notes}</td></tr>`:''}
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-h" onclick="tog(this)"><span class="sec-ico">📊</span><span class="sec-ttl">B2B Taxes · Contributions</span><span class="sec-arr open">▶</span></div>
+    <div class="sec-body open">
+      <table class="tbl"><thead><tr><th>Tax</th><th class="num">Rate</th><th>Base</th><th class="num">Example</th><th>Notes</th></tr></thead><tbody>${taxRows}</tbody></table>
+      ${d.tax_notes?`<div class="blk blk-o" style="margin-top:12px"><div class="blk-t">Important Notes</div>${d.tax_notes}</div>`:''}
+      ${d.tax_formula?.vat_note?`<div class="blk blk-p"><div class="blk-t">VAT</div>${d.tax_formula.vat_note}</div>`:''}
+      <div class="calc-card">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--tx3);margin-bottom:12px">// Net Income Calculator</div>
+        <div class="calc-inp-row">
+          <input class="calc-inp" id="calc-gross" type="number" placeholder="Enter gross invoice in USD…" min="100"/>
+          <button class="calc-btn" onclick="calcNet()">Calculate</button>
+        </div>
+        <div class="calc-result" id="calc-result"></div>
+      </div>
+    </div>
+  </div>
+
+  ${d.job_boards?.length?`
+  <div class="sec">
+    <div class="sec-h" onclick="tog(this)"><span class="sec-ico">📋</span><span class="sec-ttl">Job Boards · ${country}</span><span class="sec-arr">▶</span></div>
+    <div class="sec-body">
+      <table class="tbl"><thead><tr><th>Platform</th><th>Type</th><th class="num">Traffic</th><th class="num">Posting Cost</th><th>Best For</th></tr></thead><tbody>${jbRows}</tbody></table>
+    </div>
+  </div>`:''}
+
+  ${d.leave_and_holidays?`
+  <div class="sec">
+    <div class="sec-h" onclick="tog(this)"><span class="sec-ico">🏖️</span><span class="sec-ttl">Annual Leave & Holidays · ${country}</span><span class="sec-arr">▶</span></div>
+    <div class="sec-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+        <div style="background:var(--s2);border-radius:10px;padding:14px 16px;border:1px solid var(--bd)">
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px">Annual Leave</div>
+          <div style="font-size:28px;font-weight:800;color:var(--g);font-family:var(--mono)">${d.leave_and_holidays.annual_leave_days}</div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:4px">working days statutory</div>
+          ${d.leave_and_holidays.annual_leave_note?`<div style="font-size:11px;color:var(--tx3);margin-top:6px;font-style:italic">${d.leave_and_holidays.annual_leave_note}</div>`:''}
+        </div>
+        <div style="background:var(--s2);border-radius:10px;padding:14px 16px;border:1px solid var(--bd)">
+          <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:6px">Public Holidays</div>
+          <div style="font-size:28px;font-weight:800;color:var(--b);font-family:var(--mono)">${d.leave_and_holidays.public_holidays_count}</div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:4px">days per year</div>
+        </div>
+      </div>
+      ${d.leave_and_holidays.public_holidays_list?.length?`
+      <div style="margin-bottom:12px">
+        <div style="font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tx3);margin-bottom:8px">All Public Holidays</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px">
+          ${d.leave_and_holidays.public_holidays_list.map(h=>`<div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;gap:8px"><div style="font-size:12px;color:var(--tx)">${h.name}</div><div style="font-size:11px;color:var(--tx3);font-family:var(--mono);white-space:nowrap">${h.date}</div></div>`).join('')}
+        </div>
+      </div>`:''}
+      <div class="blk blk-o"><div class="blk-t">B2B Contractor Note</div>${d.leave_and_holidays.b2b_note||'As a B2B contractor you have no statutory leave — negotiate all time off in your contract.'}${d.leave_and_holidays.sick_leave_note?`<br><br>${d.leave_and_holidays.sick_leave_note}`:''}</div>
+    </div>
+  </div>`:''}
+
+  ${d.risks?.length?`
+  <div class="sec">
+    <div class="sec-h" onclick="tog(this)"><span class="sec-ico">⚠️</span><span class="sec-ttl">Risks & Red Flags</span><span class="sec-arr">▶</span></div>
+    <div class="sec-body">
+      <div class="blk blk-r"><ul style="padding-left:16px;list-style:disc">${risks}</ul></div>
+    </div>
+  </div>`:''}
+
   <div class="src">
     <div class="src-lbl">// Data quality</div>
-    <div class="src-note">Confidence: <span style="color:${d.confidence==='HIGH'?'var(--g)':d.confidence==='MEDIUM'?'var(--y)':'var(--r)'}">${d.confidence||'—'}</span>${d.confidence_note?` — ${d.confidence_note}`:''}${d.data_date?` · ${d.data_date}`:''}</div>
-    ${d.sources?.length?`
-    <div style="margin-top:14px">
-      <div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--tx3);margin-bottom:10px">// Verify at official sources</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${d.sources.map(s=>{
-          let domain='';try{domain=new URL(s).hostname.replace('www.','');}catch(e){domain=s.replace(/https?:\/\/(www\.)?/,'').split('/')[0];}
-          return `<a href="${s}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(77,159,255,.06);border:1px solid rgba(77,159,255,.2);border-radius:10px;text-decoration:none;transition:border-color .15s" onmouseover="this.style.borderColor='var(--b)'" onmouseout="this.style.borderColor='rgba(77,159,255,.2)'">
-            <span style="font-size:16px">🔗</span>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:12px;font-weight:700;color:var(--b);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${domain}</div>
-              <div style="font-size:11px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${s}</div>
-            </div>
-            <span style="font-size:10px;color:var(--tx3)">↗</span>
-          </a>`;
-        }).join('')}
-      </div>
-    </div>`:''}
-    <div style="margin-top:12px;font-family:var(--mono);font-size:11px;color:var(--tx3)">⚠️ AI-generated — always verify with official sources and a local tax advisor.</div>
+    <div class="src-note">
+      Confidence: <span style="color:${d.confidence==='HIGH'?'var(--g)':d.confidence==='MEDIUM'?'var(--y)':'var(--r)'}">${d.confidence||'—'}</span>${d.confidence_note?` — ${d.confidence_note}`:''}${d.data_date?` · ${d.data_date}`:''}
+      <br>⚠️ Not legal/tax advice. Verify with a local qualified advisor before signing contracts.
+    </div>
+    ${buildSourceCards(d.sources)}
   </div>`;
+
   window._TAX_FORMULA=d.tax_formula;
   const el=document.getElementById('result');
   el.innerHTML=html;el.classList.add('show');
@@ -515,23 +532,38 @@ function calcNet(){
   const gross=parseFloat(document.getElementById('calc-gross').value);
   if(!gross||gross<1)return;
   const f=window._TAX_FORMULA;
-  if(!f||!f.steps?.length){document.getElementById('calc-result').innerHTML='<div style="color:var(--r);font-size:12px">Formula unavailable.</div>';document.getElementById('calc-result').classList.add('show');return;}
-  let rows=[],total=0,soc=0;
+  if(!f||!f.steps?.length){
+    document.getElementById('calc-result').innerHTML='<div style="color:var(--r);font-size:12px">Tax formula unavailable.</div>';
+    document.getElementById('calc-result').classList.add('show');return;
+  }
+  let rows=[],totalDeductions=0,social_total=0;
   for(const s of f.steps){
-    let amt=0;
+    let amt=0;const running_net=gross-totalDeductions;
     switch(s.type){
       case'percent_of_gross':amt=gross*s.value/100;break;
       case'fixed_usd':amt=s.value;break;
-      case'capped_percent':{let r=gross*s.value/100;if(s.cap_usd)r=Math.min(r,s.cap_usd);if(s.min_usd)r=Math.max(r,s.min_usd);amt=r;soc+=amt;break}
-      case'percent_of_taxable_minus_social':{amt=Math.max(0,gross*(1-(s.expense_deduction_percent||0)/100)-soc)*s.value/100;break}
-      case'progressive_brackets':{amt=calcProg(gross,s.progressive_brackets||f.progressive_brackets||[]);break}
-      case'progressive_on_taxable':{const tb=Math.max(0,gross*(1-(s.expense_deduction_percent||0)/100)-soc);amt=calcProg(tb,s.progressive_brackets||f.progressive_brackets||[]);break}
-      default:if(s.value>0&&s.value<100)amt=gross*s.value/100;
+      case'percent_of_net_after_prev':amt=running_net*s.value/100;break;
+      case'capped_percent':{let r=gross*s.value/100;if(s.cap_usd)r=Math.min(r,s.cap_usd);if(s.min_usd)r=Math.max(r,s.min_usd);amt=r;social_total+=amt;break}
+      case'percent_of_taxable_minus_social':{const ep=s.expense_deduction_percent||0;amt=Math.max(0,gross*(1-ep/100)-social_total)*s.value/100;break}
+      case'percent_of_taxable':{amt=gross*(s.taxable_base_percent||100)/100*s.value/100;break}
+      case'progressive_brackets':{const br=s.progressive_brackets||f.progressive_brackets||[];amt=calcProg(gross,br);break}
+      case'progressive_on_taxable':{const ep=s.expense_deduction_percent||0;const tb=Math.max(0,gross*(1-ep/100)-social_total);const br=s.progressive_brackets||f.progressive_brackets||[];amt=calcProg(tb,br);break}
+      default:if(typeof s.value==='number'&&s.value>0&&s.value<100)amt=gross*s.value/100;
     }
-    if(amt>0){rows.push({label:s.label,amount:amt});total+=amt;}
+    if(amt>0){rows.push({label:s.label,amount:amt});totalDeductions+=amt;}
   }
-  const net=gross-total,eff=((total/gross)*100).toFixed(1);
-  document.getElementById('calc-result').innerHTML=`<div class="calc-row"><div class="calc-row-lbl">Gross</div><div class="calc-row-val">$${gross.toLocaleString()}</div></div>${rows.map(r=>`<div class="calc-row"><div class="calc-row-lbl">${r.label}</div><div class="calc-row-val" style="color:var(--r)">−$${r.amount.toLocaleString('en',{maximumFractionDigits:0})}</div></div>`).join('')}<div style="border-top:1px solid var(--bd2);margin:8px 0"></div><div class="calc-row"><div class="calc-row-lbl calc-net-lbl">NET</div><div class="calc-row-val calc-net">$${Math.max(0,net).toLocaleString('en',{maximumFractionDigits:0})}</div></div><div class="calc-eff">Deduction: ${eff}% · Net/Gross: ${(100-parseFloat(eff)).toFixed(1)}%</div>`;
+  if(f.method==='progressive'&&f.progressive_brackets?.length&&rows.length===0){
+    const tax=calcProg(gross,f.progressive_brackets);rows.push({label:'Income tax (progressive)',amount:tax});totalDeductions+=tax;
+    for(const s of(f.steps||[])){if(s.type==='fixed_usd'){rows.push({label:s.label,amount:s.value});totalDeductions+=s.value;}}
+  }
+  const net=gross-totalDeductions,eff=((totalDeductions/gross)*100).toFixed(1);
+  const rowsHtml=rows.map(r=>`<div class="calc-row"><div class="calc-row-lbl">${r.label}</div><div class="calc-row-val" style="color:var(--r)">−$${r.amount.toLocaleString('en',{maximumFractionDigits:0})}</div></div>`).join('');
+  document.getElementById('calc-result').innerHTML=`
+    <div class="calc-row"><div class="calc-row-lbl">Gross invoice</div><div class="calc-row-val">$${gross.toLocaleString()}</div></div>
+    ${rowsHtml}
+    <div style="border-top:1px solid var(--bd2);margin:8px 0"></div>
+    <div class="calc-row"><div class="calc-row-lbl calc-net-lbl">NET on hand</div><div class="calc-row-val calc-net">$${Math.max(0,net).toLocaleString('en',{maximumFractionDigits:0})}</div></div>
+    <div class="calc-eff">Effective deduction: ${eff}% · Net/Gross: ${(100-parseFloat(eff)).toFixed(1)}%</div>`;
   document.getElementById('calc-result').classList.add('show');
 }
 
@@ -552,12 +584,27 @@ function tog(el){
   b.classList.toggle('open',!open);a.classList.toggle('open',!open);
 }
 
+function buildSourceCards(sources){
+  if(!sources||!sources.length) return '';
+  var html='<div style="margin-top:14px"><div style="font-family:var(--mono);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--tx3);margin-bottom:8px">// Official sources — verify before signing</div>';
+  sources.forEach(function(s){
+    var domain='';
+    try{domain=new URL(s).hostname.replace('www.','');}catch(e){domain=s.replace(/https?:\/\/(www\.)?/,'').split('/')[0];}
+    html+='<a href="'+s+'" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(77,159,255,.06);border:1px solid rgba(77,159,255,.2);border-radius:10px;text-decoration:none;margin-bottom:6px" onmouseover="this.style.borderColor=\'#4d9fff\'" onmouseout="this.style.borderColor=\'rgba(77,159,255,.2)\'">'
+      +'<span>🔗</span>'
+      +'<div style="flex:1;min-width:0;overflow:hidden">'
+      +'<div style="font-size:12px;font-weight:700;color:#4d9fff">'+domain+'</div>'
+      +'<div style="font-size:11px;color:#444466;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s+'</div>'
+      +'</div><span style="color:#444466;font-size:11px">↗</span></a>';
+  });
+  html+='</div>';
+  return html;
+}
+
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.activeElement.id==='calc-gross')calcNet();
-  if(e.key==='Enter'&&document.activeElement.id==='key-inp')saveKey();
+  if(e.key==='Enter'&&document.activeElement===inp&&sugg.querySelectorAll('.ci').length===0)run();
 });
-
-initKey();
 </script>
 </body>
 </html>
